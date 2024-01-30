@@ -137,6 +137,26 @@ impl PaddingScheme for Oaep {
         priv_key: &RsaPrivateKey,
         ciphertext: &[u8],
     ) -> Result<Vec<u8>> {
+        match decrypt(
+            rng,
+            priv_key,
+            ciphertext,
+            &mut *self.digest,
+            &mut *self.mgf_digest,
+            self.label,
+        ) {
+            Ok((msg, _)) => Ok(msg),
+            Err(Error::Decryption) => Err(Error::Decryption),
+            Err(e) => Err(e),
+        }
+    }
+
+    fn decrypt_seed<Rng: CryptoRngCore>(
+        mut self,
+        rng: Option<&mut Rng>,
+        priv_key: &RsaPrivateKey,
+        ciphertext: &[u8],
+    ) -> Result<(Vec<u8>, Vec<u8>)> {
         decrypt(
             rng,
             priv_key,
@@ -239,7 +259,7 @@ fn decrypt<R: CryptoRngCore + ?Sized>(
     digest: &mut dyn DynDigest,
     mgf_digest: &mut dyn DynDigest,
     label: Option<String>,
-) -> Result<Vec<u8>> {
+) -> Result<(Vec<u8>, Vec<u8>)> {
     key::check_public(priv_key)?;
 
     if ciphertext.len() != priv_key.size() {

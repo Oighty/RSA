@@ -46,6 +46,15 @@ impl PaddingScheme for Pkcs1v15Encrypt {
         decrypt(rng, priv_key, ciphertext)
     }
 
+    fn decrypt_seed<Rng: CryptoRngCore>(
+        self,
+        _: Option<&mut Rng>,
+        _: &RsaPrivateKey,
+        _: &[u8],
+    ) -> Result<(Vec<u8>, Vec<u8>)> {
+        return Err(Error::Decryption);
+    }
+
     fn encrypt<Rng: CryptoRngCore>(
         self,
         rng: &mut Rng,

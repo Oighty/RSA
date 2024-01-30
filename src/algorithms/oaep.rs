@@ -129,7 +129,7 @@ pub(crate) fn oaep_decrypt(
     mgf_digest: &mut dyn DynDigest,
     label: Option<String>,
     k: usize,
-) -> Result<Vec<u8>> {
+) -> Result<(Vec<u8>, Vec<u8>)> {
     let h_size = digest.output_size();
 
     let label = label.unwrap_or_default();
@@ -149,9 +149,9 @@ pub(crate) fn oaep_decrypt(
         return Err(Error::Decryption);
     }
 
-    let (out, index) = res.unwrap();
+    let (out, index, seed) = res.unwrap();
 
-    Ok(out[index as usize..].to_vec())
+    Ok((out[index as usize..].to_vec(), seed))
 }
 
 ///Decrypts OAEP padding.
@@ -188,7 +188,7 @@ pub(crate) fn oaep_decrypt_digest<D: Digest, MGD: Digest + FixedOutputReset>(
         return Err(Error::Decryption);
     }
 
-    let (out, index) = res.unwrap();
+    let (out, index, _) = res.unwrap();
 
     Ok(out[index as usize..].to_vec())
 }
@@ -202,7 +202,7 @@ fn decrypt_inner<MGF: FnMut(&mut [u8], &mut [u8])>(
     expected_p_hash: &[u8],
     k: usize,
     mut mgf: MGF,
-) -> Result<CtOption<(Vec<u8>, u32)>> {
+) -> Result<CtOption<(Vec<u8>, u32, Vec<u8>)>> {
     if k < 11 {
         return Err(Error::Decryption);
     }
@@ -217,6 +217,8 @@ fn decrypt_inner<MGF: FnMut(&mut [u8], &mut [u8])>(
     let (seed, db) = payload.split_at_mut(h_size);
 
     mgf(seed, db);
+
+    let seed = seed.to_vec();
 
     let hash_are_equal = db[0..h_size].ct_eq(expected_p_hash);
 
@@ -240,7 +242,7 @@ fn decrypt_inner<MGF: FnMut(&mut [u8], &mut [u8])>(
     let valid = first_byte_is_zero & hash_are_equal & !nonzero_before_one & !looking_for_index;
 
     Ok(CtOption::new(
-        (em.to_vec(), index + 2 + (h_size * 2) as u32),
+        (em.to_vec(), index + 2 + (h_size * 2) as u32, seed),
         valid,
     ))
 }

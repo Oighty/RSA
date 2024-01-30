@@ -20,6 +20,13 @@ pub trait PaddingScheme {
         ciphertext: &[u8],
     ) -> Result<Vec<u8>>;
 
+    fn decrypt_seed<Rng: CryptoRngCore>(
+        self,
+        rng: Option<&mut Rng>,
+        priv_key: &RsaPrivateKey,
+        ciphertext: &[u8],
+    ) -> Result<(Vec<u8>, Vec<u8>)>;
+
     /// Encrypt the given message using the given public key.
     fn encrypt<Rng: CryptoRngCore>(
         self,
