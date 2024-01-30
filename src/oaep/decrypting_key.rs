@@ -1,4 +1,4 @@
-use super::{decrypt, decrypt_digest};
+use super::decrypt_digest;
 use crate::{
     dummy_rng::DummyRng,
     traits::{Decryptor, RandomizedDecryptor},
