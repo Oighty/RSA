@@ -27,6 +27,10 @@ impl Decryptor for DecryptingKey {
     fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>> {
         decrypt::<DummyRng>(None, &self.inner, ciphertext)
     }
+
+    fn decrypt_seed(&self, _: &[u8]) -> Result<(Vec<u8>, Vec<u8>)> {
+        Err(crate::Error::Decryption)
+    }
 }
 
 impl RandomizedDecryptor for DecryptingKey {

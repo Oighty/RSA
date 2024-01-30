@@ -290,7 +290,7 @@ fn decrypt_digest<R: CryptoRngCore + ?Sized, D: Digest, MGD: Digest + FixedOutpu
     priv_key: &RsaPrivateKey,
     ciphertext: &[u8],
     label: Option<String>,
-) -> Result<Vec<u8>> {
+) -> Result<(Vec<u8>, Vec<u8>)> {
     key::check_public(priv_key)?;
 
     if ciphertext.len() != priv_key.size() {

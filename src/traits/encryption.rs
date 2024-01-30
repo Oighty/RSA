@@ -19,6 +19,9 @@ pub trait RandomizedEncryptor {
 pub trait Decryptor {
     /// Decrypt the given message.
     fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>>;
+
+    /// Decrypt the given message. Also, returns the seed used to encrypt it.
+    fn decrypt_seed(&self, ciphertext: &[u8]) -> Result<(Vec<u8>, Vec<u8>)>;
 }
 
 /// Decrypt the given message using provided random source

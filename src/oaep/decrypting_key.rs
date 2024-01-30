@@ -1,4 +1,4 @@
-use super::decrypt_digest;
+use super::{decrypt, decrypt_digest};
 use crate::{
     dummy_rng::DummyRng,
     traits::{Decryptor, RandomizedDecryptor},
@@ -60,6 +60,18 @@ where
     MGD: Digest + FixedOutputReset,
 {
     fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>> {
+        match decrypt_digest::<DummyRng, D, MGD>(
+            None,
+            &self.inner,
+            ciphertext,
+            self.label.as_ref().cloned(),
+        ) {
+            Ok((msg, _)) => Ok(msg),
+            Err(e) => Err(e),
+        }
+    }
+
+    fn decrypt_seed(&self, ciphertext: &[u8]) -> Result<(Vec<u8>, Vec<u8>)> {
         decrypt_digest::<DummyRng, D, MGD>(
             None,
             &self.inner,
@@ -79,12 +91,15 @@ where
         rng: &mut R,
         ciphertext: &[u8],
     ) -> Result<Vec<u8>> {
-        decrypt_digest::<_, D, MGD>(
+        match decrypt_digest::<_, D, MGD>(
             Some(rng),
             &self.inner,
             ciphertext,
             self.label.as_ref().cloned(),
-        )
+        ) {
+            Ok((msg, _)) => Ok(msg),
+            Err(e) => Err(e),
+        }
     }
 }
 

@@ -169,7 +169,7 @@ pub(crate) fn oaep_decrypt_digest<D: Digest, MGD: Digest + FixedOutputReset>(
     em: &mut [u8],
     label: Option<String>,
     k: usize,
-) -> Result<Vec<u8>> {
+) -> Result<(Vec<u8>, Vec<u8>)> {
     let h_size = <D as Digest>::output_size();
 
     let label = label.unwrap_or_default();
@@ -188,9 +188,9 @@ pub(crate) fn oaep_decrypt_digest<D: Digest, MGD: Digest + FixedOutputReset>(
         return Err(Error::Decryption);
     }
 
-    let (out, index, _) = res.unwrap();
+    let (out, index, seed) = res.unwrap();
 
-    Ok(out[index as usize..].to_vec())
+    Ok((out[index as usize..].to_vec(), seed))
 }
 
 /// Decrypts OAEP padding. It returns one or zero in valid that indicates whether the
