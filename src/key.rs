@@ -426,7 +426,7 @@ impl RsaPrivateKey {
         padding.decrypt(Option::<&mut DummyRng>::None, self, ciphertext)
     }
 
-    // Decrypt the given message and return the seed used for decryption (if applicable)
+    /// Decrypt the given message and return the seed used for decryption (if applicable)
     pub fn decrypt_seed<P: PaddingScheme>(&self, padding: P, ciphertext: &[u8]) -> Result<(Vec<u8>, Vec<u8>)> {
         padding.decrypt_seed(Option::<&mut DummyRng>::None, self, ciphertext)
     }

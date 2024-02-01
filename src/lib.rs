@@ -232,6 +232,7 @@ pub mod oaep;
 pub mod pkcs1v15;
 pub mod pss;
 pub mod traits;
+pub mod set_seed;
 
 mod dummy_rng;
 mod encoding;
